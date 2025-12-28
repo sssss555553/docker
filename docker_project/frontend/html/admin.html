@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理中心 - 优品商城</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --accent: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* 侧边栏导航 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 2rem 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        .admin-brand-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-menu {
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+        }
+
+        .nav-text {
+            font-weight: 600;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+
+        /* 顶部工具栏 */
+        .top-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .top-bar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 仪表盘 */
+        .dashboard-content {
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-stat-card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .admin-stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .admin-stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-stat-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .stat-warning {
+            color: var(--warning);
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .search-toolbar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .admin-search {
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            min-width: 300px;
+            transition: border-color 0.3s ease;
+        }
+
+        .admin-search:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .admin-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-search {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-search:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-reset {
+            background: var(--background);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-reset:hover {
+            background: var(--surface);
+            transform: translateY(-2px);
+        }
+
+        .action-toolbar {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-add {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+        }
+
+        .btn-delete-bulk {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-delete-bulk:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* 数据表格 */
+        .data-table-container {
+            background: var(--surface);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .table-header th {
+            padding: 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-body td {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .table-row:hover {
+            background: var(--background);
+            transition: background-color 0.3s ease;
+        }
+
+        /* 表格内容样式 */
+        .checkbox-cell {
+            text-align: center;
+        }
+
+        .product-name-cell {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .price-cell {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .stock-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .stock-normal {
+            background: var(--success);
+            color: white;
+        }
+
+        .stock-low {
+            background: var(--warning);
+            color: white;
+        }
+
+        .stock-out {
+            background: var(--accent);
+            color: white;
+        }
+
+        .action-cells {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table-btn {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-edit {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #e67e22;
+        }
+
+        .btn-remove {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-remove:hover {
+            background: #dc2626;
+        }
+
+        /* 空状态和错误状态 */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--accent);
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-container {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--background);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-submit:hover {
+            background: var(--primary-dark);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .main-content {
+                margin-left: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1rem;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 0.5rem;
+            }
+            
+            .nav-item {
+                white-space: nowrap;
+                margin-bottom: 0;
+                margin-right: 0.5rem;
+            }
+            
+            .admin-search {
+                min-width: unset;
+                width: 100%;
+            }
+            
+            .search-toolbar {
+                flex-direction: column;
+            }
+            
+            .action-toolbar {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-bar-content {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .user-menu {
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .panel-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .table-header th,
+            .table-body td {
+                padding: 0.75rem;
+            }
+            
+            .action-cells {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="admin-brand">
+                <div class="admin-logo">管</div>
+                <span class="admin-brand-text">管理中心</span>
+            </div>
+        </div>
+        
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active">
+                <span class="nav-icon">📦</span>
+                <span class="nav-text">商品管理</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <!-- 顶部工具栏 -->
+        <header class="top-bar">
+            <div class="top-bar-content">
+                <h1 class="page-title">商品数据管理</h1>
+                <div class="user-menu">
+                    <a href="/" class="back-btn">← 返回前台</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- 仪表盘内容 -->
+        <section class="dashboard-content">
+
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">数据筛选</h2>
+                    <div class="search-toolbar">
+                        <input type="text" id="searchInput" class="admin-search" placeholder="搜索商品名称...">
+                        <button class="admin-btn btn-search" onclick="searchProducts()">
+                            <span>🔍</span> 搜索
+                        </button>
+                        <button class="admin-btn btn-reset" onclick="resetSearch()">
+                            <span>🔄</span> 重置
+                        </button>
+                    </div>
+                    <div class="action-toolbar">
+                        <button class="admin-btn btn-add" onclick="openAddModal()">
+                            <span>➕</span> 添加商品
+                        </button>
+                        <button class="admin-btn btn-delete-bulk" onclick="deleteSelected()">
+                            <span>🗑️</span> 批量删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead class="table-header">
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                            </th>
+                            <th>ID</th>
+                            <th>商品名称</th>
+                            <th>分类</th>
+                            <th>价格</th>
+                            <th>库存状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body" id="productTable">
+                        <tr>
+                            <td colspan="8" class="empty-state">
+                                <p>📊 正在加载数据...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- 添加/编辑模态框 -->
+    <div id="productModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">添加商品</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <form id="productForm" onsubmit="saveProduct(event)">
+                <input type="hidden" id="productId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">商品名称 *</label>
+                        <input type="text" id="productName" class="form-input" required placeholder="请输入商品名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商品描述</label>
+                        <textarea id="productDesc" class="form-input form-textarea" placeholder="请输入商品详细描述"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">价格 *</label>
+                        <input type="number" id="productPrice" class="form-input" step="0.01" min="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">库存数量 *</label>
+                        <input type="number" id="productStock" class="form-input" min="0" required placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商品分类</label>
+                        <select id="productCategory" class="form-input">
+                            <option value="">选择分类</option>
+                            <option value="手机">智能手机</option>
+                            <option value="电脑">电脑设备</option>
+                            <option value="平板">平板电脑</option>
+                            <option value="配件">配件周边</option>
+                            <option value="穿戴">智能穿戴</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商品图片链接</label>
+                        <input type="text" id="productImage" class="form-input" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <button type="submit" class="form-submit">保存商品</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let allProducts = [];
+        let selectedIds = new Set();
+
+        document.addEventListener('DOMContentLoaded', loadProducts);
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                allProducts = await response.json();
+                renderTable(allProducts);
+            } catch (error) {
+                document.getElementById('productTable').innerHTML = `
+                    <tr>
+                        <td colspan="8" class="error-state">
+                            <p>❌ 数据加载失败</p>
+                            <p>请刷新页面重试</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderTable(products) {
+            if (products.length === 0) {
+                document.getElementById('productTable').innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <p>📭 暂无商品数据</p>
+                            <p>点击"添加商品"开始管理</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            document.getElementById('productTable').innerHTML = products.map(product => {
+                let stockClass = 'stock-normal';
+                let stockText = `${product.stock}件`;
+                
+                if (product.stock === 0) {
+                    stockClass = 'stock-out';
+                    stockText = '已售罄';
+                } else if (product.stock < 10) {
+                    stockClass = 'stock-low';
+                    stockText = `${product.stock}件 (低库存)`;
+                }
+                
+                return `
+                <tr class="table-row">
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" value="${product.id}" onchange="toggleSelect(${product.id})">
+                    </td>
+                    <td>${product.id}</td>
+                    <td class="product-name-cell">${product.name}</td>
+                    <td>
+                        <span class="category-tag">${product.category || '未分类'}</span>
+                    </td>
+                    <td class="price-cell">¥${parseFloat(product.price).toFixed(2)}</td>
+                    <td>
+                        <span class="stock-badge ${stockClass}">${stockText}</span>
+                    </td>
+                    <td>${product.createdAt ? new Date(product.createdAt).toLocaleDateString() : '-'}</td>
+                    <td class="action-cells">
+                        <button class="table-btn btn-edit" onclick="openEditModal(${product.id})">
+                            <span>✏️</span> 编辑
+                        </button>
+                        <button class="table-btn btn-remove" onclick="deleteProduct(${product.id})">
+                            <span>🗑️</span> 删除
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function searchProducts() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(keyword));
+            renderTable(filtered);
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            renderTable(allProducts);
+        }
+
+        function toggleSelectAll() {
+            const checked = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => {
+                cb.checked = checked;
+                if (checked) selectedIds.add(parseInt(cb.value));
+                else selectedIds.delete(parseInt(cb.value));
+            });
+        }
+
+        function toggleSelect(id) {
+            if (selectedIds.has(id)) selectedIds.delete(id);
+            else selectedIds.add(id);
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '添加商品';
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function openEditModal(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+            
+            document.getElementById('modalTitle').textContent = '编辑商品';
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productDesc').value = product.description || '';
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productCategory').value = product.category || '';
+            document.getElementById('productImage').value = product.imageUrl || '';
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
+        async function saveProduct(event) {
+            event.preventDefault();
+            const id = document.getElementById('productId').value;
+            const productData = {
+                name: document.getElementById('productName').value,
+                description: document.getElementById('productDesc').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                category: document.getElementById('productCategory').value,
+                imageUrl: document.getElementById('productImage').value
+            };
+
+            try {
+                const url = id ? `/api/products/${id}` : '/api/products';
+                const method = id ? 'PUT' : 'POST';
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(productData)
+                });
+                
+                if (!response.ok) throw new Error('保存失败');
+                
+                alert(id ? '✅ 商品更新成功！' : '✅ 商品添加成功！');
+                closeModal();
+                loadProducts();
+            } catch (error) {
+                alert('❌ 操作失败: ' + error.message);
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('⚠️ 确定要删除这个商品吗？此操作不可恢复。')) return;
+            
+            try {
+                const response = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('删除失败');
+                alert('✅ 商品删除成功！');
+                loadProducts();
+            } catch (error) {
+                alert('❌ 删除失败: ' + error.message);
+            }
+        }
+
+        async function deleteSelected() {
+            if (selectedIds.size === 0) {
+                alert('ℹ️ 请先选择要删除的商品');
+                return;
+            }
+            
+            if (!confirm(`⚠️ 确定要删除选中的 ${selectedIds.size} 个商品吗？此操作不可恢复。`)) return;
+            
+            try {
+                for (const id of selectedIds) {
+                    await fetch(`/api/products/${id}`, { method: 'DELETE' });
+                }
+                alert('✅ 批量删除成功！');
+                selectedIds.clear();
+                document.getElementById('selectAll').checked = false;
+                loadProducts();
+            } catch (error) {
+                alert('❌ 删除失败: ' + error.message);
+            }
+        }
+
+        // 模态框外部点击关闭
+        document.getElementById('productModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // 回车键搜索
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchProducts();
+            }
+        });
+    </script>
+</body>
+</html>

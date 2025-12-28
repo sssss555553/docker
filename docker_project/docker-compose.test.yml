@@ -1,0 +1,92 @@
+# ============================================
+# Docker Compose 测试环境配置
+# 用于CI/CD集成测试
+# ============================================
+
+version: '3.8'
+
+services:
+  # ==================== 前端服务（测试环境） ====================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ecommerce-frontend-test
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - ecommerce-test-network
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # ==================== 后端服务（测试环境） ====================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ecommerce-backend-test
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=database
+      - DB_PORT=3306
+      - DB_NAME=ecommerce_test
+      - DB_USER=ecommerce_user
+      - DB_PASSWORD=ecommerce123
+      - SHOW_SQL=true
+      - LOG_LEVEL=DEBUG
+      - SPRING_PROFILES_ACTIVE=test
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - ecommerce-test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ==================== 数据库服务（测试环境） ====================
+  database:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    container_name: ecommerce-database-test
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=ecommerce_test
+      - MYSQL_USER=ecommerce_user
+      - MYSQL_PASSWORD=ecommerce123
+      - TZ=Asia/Shanghai
+    # 测试环境不需要持久化数据
+    tmpfs:
+      - /var/lib/mysql
+    networks:
+      - ecommerce-test-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+
+# ==================== 测试网络 ====================
+networks:
+  ecommerce-test-network:
+    driver: bridge
+    name: ecommerce-test-network
